@@ -1,1 +1,381 @@
 # HoneyCalculator.github.io
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honey Breakeven Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .results-section.visible {
+            display: block;
+        }
+
+        .breakeven-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .breakeven-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .breakeven-detail {
+            font-size: 14px;
+            opacity: 0.95;
+            margin: 8px 0;
+        }
+
+        .margin-info {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .projections {
+            margin-top: 20px;
+        }
+
+        .projections h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .projection-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+
+        .projection-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .projection-detail {
+            font-size: 13px;
+            color: #666;
+            margin: 4px 0;
+        }
+
+        .profit {
+            font-weight: 600;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #ddd;
+        }
+
+        .profit.positive {
+            color: #27ae60;
+        }
+
+        .profit.negative {
+            color: #e74c3c;
+        }
+
+        .error {
+            background: #ffe5e5;
+            color: #c0392b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .error.visible {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .breakeven-value {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍯 Honey Breakeven Calculator</h1>
+
+        <div class="error" id="errorBox"></div>
+
+        <form id="calculatorForm">
+            <div class="form-section">
+                <div class="section-title">Unit Costs</div>
+
+                <div class="form-group">
+                    <label for="bottleCost">Bottle Cost ($)</label>
+                    <input type="number" id="bottleCost" placeholder="0.00" step="0.01" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="honeyCost">Honey/Product Cost per Unit ($)</label>
+                    <input type="number" id="honeyCost" placeholder="0.00" step="0.01" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="packagingCost">Packaging/Labeling Cost per Unit ($)</label>
+                    <input type="number" id="packagingCost" placeholder="0.00" step="0.01" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="otherMaterialsCost">Other Materials per Unit ($)</label>
+                    <input type="number" id="otherMaterialsCost" placeholder="0.00" step="0.01" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="sellingPrice">Selling Price per Unit ($)</label>
+                    <input type="number" id="sellingPrice" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">Fixed Costs</div>
+
+                <div class="form-group">
+                    <label for="monthlyFixedCosts">Monthly Fixed Costs ($)</label>
+                    <input type="number" id="monthlyFixedCosts" placeholder="0.00" step="0.01" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="annualFixedCosts">Annual Fixed Costs ($)</label>
+                    <input type="number" id="annualFixedCosts" placeholder="0.00" step="0.01" min="0">
+                </div>
+            </div>
+
+            <button type="submit">Calculate Breakeven</button>
+        </form>
+
+        <div class="results-section" id="resultsSection">
+            <div class="breakeven-box">
+                <div style="font-size: 14px; opacity: 0.9;">Breakeven Point</div>
+                <div class="breakeven-value" id="breakEvenValue">0</div>
+                <div class="breakeven-detail">
+                    Revenue needed: <span id="breakEvenRevenue">$0.00</span>
+                </div>
+                <div class="margin-info">
+                    Margin per unit: <span id="marginPerUnit">$0.00</span> (<span id="marginPercent">0%</span>)
+                </div>
+            </div>
+
+            <div class="projections">
+                <h3>Projections at Different Sales Volumes</h3>
+                <div id="projectionsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('calculatorForm');
+        const errorBox = document.getElementById('errorBox');
+        const resultsSection = document.getElementById('resultsSection');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            calculateBreakeven();
+        });
+
+        function getInputValue(id) {
+            const value = parseFloat(document.getElementById(id).value);
+            return isNaN(value) ? 0 : value;
+        }
+
+        function formatCurrency(value) {
+            return '$' + value.toFixed(2);
+        }
+
+        function formatNumber(value) {
+            return Math.round(value).toLocaleString();
+        }
+
+        function calculateBreakeven() {
+            try {
+                const bottleCost = getInputValue('bottleCost');
+                const honeyCost = getInputValue('honeyCost');
+                const packagingCost = getInputValue('packagingCost');
+                const otherMaterialsCost = getInputValue('otherMaterialsCost');
+                const sellingPrice = getInputValue('sellingPrice');
+                const monthlyFixedCosts = getInputValue('monthlyFixedCosts');
+                const annualFixedCosts = getInputValue('annualFixedCosts');
+
+                const variableCostPerUnit = bottleCost + honeyCost + packagingCost + otherMaterialsCost;
+                const totalFixedCosts = (monthlyFixedCosts * 12) + annualFixedCosts;
+                const marginPerUnit = sellingPrice - variableCostPerUnit;
+
+                if (marginPerUnit <= 0) {
+                    showError('Selling price must be greater than total variable costs per unit.');
+                    return;
+                }
+
+                hideError();
+
+                const breakEvenQuantity = Math.ceil(totalFixedCosts / marginPerUnit);
+                const breakEvenRevenue = breakEvenQuantity * sellingPrice;
+                const marginPercent = (marginPerUnit / sellingPrice) * 100;
+
+                document.getElementById('breakEvenValue').textContent = formatNumber(breakEvenQuantity) + ' units';
+                document.getElementById('breakEvenRevenue').textContent = formatCurrency(breakEvenRevenue);
+                document.getElementById('marginPerUnit').textContent = formatCurrency(marginPerUnit);
+                document.getElementById('marginPercent').textContent = marginPercent.toFixed(1) + '%';
+
+                const volumes = [50, 100, 200, 500, 1000, breakEvenQuantity];
+                const uniqueVolumes = [...new Set(volumes)].sort((a, b) => a - b);
+
+                const projectionsHtml = uniqueVolumes.map(units => {
+                    const revenue = units * sellingPrice;
+                    const variableCosts = units * variableCostPerUnit;
+                    const totalCosts = variableCosts + totalFixedCosts;
+                    const profit = revenue - totalCosts;
+                    const isPositive = profit >= 0;
+
+                    return `
+                        <div class="projection-item">
+                            <div class="projection-title">${formatNumber(units)} units</div>
+                            <div class="projection-detail">Revenue: ${formatCurrency(revenue)}</div>
+                            <div class="projection-detail">Total Cost: ${formatCurrency(totalCosts)}</div>
+                            <div class="profit ${isPositive ? 'positive' : 'negative'}">
+                                Profit: ${formatCurrency(profit)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('projectionsContainer').innerHTML = projectionsHtml;
+                resultsSection.classList.add('visible');
+
+            } catch (error) {
+                showError('Please check your inputs: ' + error.message);
+            }
+        }
+
+        function showError(message) {
+            errorBox.textContent = message;
+            errorBox.classList.add('visible');
+        }
+
+        function hideError() {
+            errorBox.classList.remove('visible');
+        }
+    </script>
+</body>
+</html>
